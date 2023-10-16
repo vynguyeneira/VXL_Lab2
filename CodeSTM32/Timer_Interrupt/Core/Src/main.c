@@ -273,17 +273,24 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-int led_enable = 1;  //To know which 7 SEGMENT LED is enable
-int counter = 50;
+int led_enable = 1;
+// To know which 7 SEGMENT LED is enable
+// 1 - LED SEG1 display, 2 - LED SEG2 display
+int counter_for_switch_LED7SEG = 50;
+int counter_for_led_red_blinky = 100;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if (counter > 0)
+	counter_for_led_red_blinky--;
+	if (counter_for_led_red_blinky <= 0) //toggle LED RED every second
 	{
-		counter--;
-		if (counter < 0)
+		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		counter_for_led_red_blinky = 100; //reset counter for led red blinky
+	}
+
+		counter_for_switch_LED7SEG--;
+		if (counter_for_switch_LED7SEG <= 0)
 		{
-			counter = 50;
 			switch (led_enable) {
 				case 1:
 					HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, RESET);
@@ -299,9 +306,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				default:
 					break;
 			}
-		}
-	}
 
+			counter_for_switch_LED7SEG = 50;
+		}
 }
 /* USER CODE END 4 */
 
