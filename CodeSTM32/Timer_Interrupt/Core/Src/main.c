@@ -56,7 +56,58 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void display7SEG(int num)
+{
+	if (num == 0)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin|SEG4_Pin|SEG5_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG6_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 1)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG1_Pin|SEG2_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG3_Pin|SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 2)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG1_Pin|SEG3_Pin|SEG4_Pin|SEG6_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG2_Pin|SEG5_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 3)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin|SEG6_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG4_Pin|SEG5_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 4)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG1_Pin|SEG2_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG3_Pin|SEG4_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 5)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG2_Pin|SEG3_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG1_Pin|SEG4_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 6)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG2_Pin|SEG3_Pin|SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG1_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 7)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG3_Pin|SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_SET);
+	}
+	else if (num == 8)
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin|SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin (GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin (GPIOB, SEG4_Pin, GPIO_PIN_SET);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -194,29 +245,63 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|EN0_Pin|EN1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : LED_RED_Pin */
-  GPIO_InitStruct.Pin = LED_RED_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
+                          |SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : LED_RED_Pin EN0_Pin EN1_Pin */
+  GPIO_InitStruct.Pin = LED_RED_Pin|EN0_Pin|EN1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_RED_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : SEG0_Pin SEG1_Pin SEG2_Pin SEG3_Pin
+                           SEG4_Pin SEG5_Pin SEG6_Pin */
+  GPIO_InitStruct.Pin = SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
+                          |SEG4_Pin|SEG5_Pin|SEG6_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
 /* USER CODE BEGIN 4 */
-int counter = 100;
+int led_enable = 1;  //To know which 7 SEGMENT LED is enable
+int counter = 50;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	counter--;
-	if(counter <= 0)
+	if (counter > 0)
 	{
-		counter = 100;
-		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		counter--;
+		if (counter < 0)
+		{
+			counter = 50;
+			switch (led_enable) {
+				case 1:
+					HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, RESET);
+					HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, SET);
+					display7SEG(1);
+					led_enable = 2;
+					break;
+				case 2:
+					HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, SET);
+					HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, RESET);
+					display7SEG(2);
+					led_enable = 1;
+				default:
+					break;
+			}
+		}
 	}
+
 }
 /* USER CODE END 4 */
 
