@@ -323,9 +323,15 @@ int led_enable = 1;
 // To know which 7 SEGMENT LED is enable
 // 1 - LED SEG1 display, 2 - LED SEG2 display
 // 3 - LED SEG3 display, 0 - LED SEG4 dislay
-int counter_for_switch_LED7SEG = 50;
+
 int counter_for_led_red_blinky = 100;
 int counter_for_DOT = 100;
+
+int counter_for_switch_LED7SEG = 25;
+// The period of invoking update7SEG function is
+//0,25s (250ms) in order to set the frequency of
+//4 seven segment LEDs to 1Hz.
+
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -348,7 +354,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		update7SEG(index_led++);
 		if (index_led >= MAX_LED) index_led = 0;
-		counter_for_switch_LED7SEG = 50;
+		counter_for_switch_LED7SEG = 25;
 	}
 }
 /* USER CODE END 4 */
