@@ -59,8 +59,10 @@ static void MX_TIM2_Init(void);
 
 int timer0_counter = 0;
 int timer1_counter = 0;
+int timer2_couter = 0;
 int timer0_flag = 0;
 int timer1_flag = 0;
+int timer2_flag = 0;
 int TIMER_CYCLE = 10;  //10ms
 
 void setTimer0(int duration)
@@ -75,6 +77,12 @@ void setTimer1(int duration)
 	timer1_flag = 0;
 }
 
+void setTimer2(int duration)
+{
+	timer2_couter = duration / TIMER_CYCLE;
+	timer2_flag = 0;
+}
+
 void timer_run()
 {
 	if(timer0_counter > 0)
@@ -87,6 +95,12 @@ void timer_run()
 	{
 		timer1_counter--;
 		if(timer1_counter == 0) timer1_flag = 1;
+	}
+
+	if(timer2_couter > 0)
+	{
+		timer2_couter--;
+		timer2_flag = 1;
 	}
 }
 
@@ -242,8 +256,9 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  setTimer0(1000);
-  setTimer1(1000);
+  setTimer0(1000);   //Toggle LED_RED & DOT
+  setTimer1(1000);  //UpdateClockBuffer
+  setTimer2(250);   //Update7SEG
 
   hour = 15, minute = 8, second = 50;
   while (1)
@@ -273,6 +288,14 @@ int main(void)
 		  updateClockBuffer();
 		  setTimer1(1000);
 	  }
+
+	  if(timer2_flag == 1)
+	  {
+			update7SEG(index_led++);
+			if (index_led >= MAX_LED) index_led = 0;
+			setTimer2(250);
+	  }
+
 
     /* USER CODE END WHILE */
 
@@ -403,21 +426,9 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-int counter_for_switch_LED7SEG = 50;
-
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	timer_run();
-
-	counter_for_switch_LED7SEG--;
-	if (counter_for_switch_LED7SEG <= 0)
-	{
-		update7SEG(index_led++);
-		if (index_led >= MAX_LED) index_led = 0;
-		counter_for_switch_LED7SEG = 50;
-	}
 }
 /* USER CODE END 4 */
 
