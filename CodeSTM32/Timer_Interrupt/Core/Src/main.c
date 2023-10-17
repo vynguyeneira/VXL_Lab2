@@ -382,14 +382,9 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-int led_enable = 1;
-// To know which 7 SEGMENT LED is enable
-// 1 - LED SEG1 display, 2 - LED SEG2 display
-// 3 - LED SEG3 display, 0 - LED SEG4 dislay
-
 int counter_for_led_red_blinky = 100;
 int counter_for_DOT = 100;
-int counter_for_switch_LED7SEG = 50;
+int counter_for_switch_LED7SEG = 25;
 
 
 
@@ -416,7 +411,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		update7SEG(index_led++);
 		if (index_led >= MAX_LED) index_led = 0;
-		counter_for_switch_LED7SEG = 50;
+		counter_for_switch_LED7SEG = 25;
 	}
 }
 /* USER CODE END 4 */
