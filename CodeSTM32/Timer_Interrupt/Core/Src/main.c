@@ -100,7 +100,7 @@ void timer_run()
 	if(timer2_couter > 0)
 	{
 		timer2_couter--;
-		timer2_flag = 1;
+		if(timer2_couter == 0) timer2_flag = 1;
 	}
 }
 
@@ -292,7 +292,7 @@ int main(void)
 	  if(timer2_flag == 1)
 	  {
 			update7SEG(index_led++);
-			if (index_led >= MAX_LED) index_led = 0;
+			if(index_led >= MAX_LED) index_led = 0;
 			setTimer2(250);
 	  }
 
