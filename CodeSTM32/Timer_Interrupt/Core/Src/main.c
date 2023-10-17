@@ -56,8 +56,11 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 int timer0_counter = 0;
+int timer1_counter = 0;
 int timer0_flag = 0;
+int timer1_flag = 0;
 int TIMER_CYCLE = 10;  //10ms
 
 void setTimer0(int duration)
@@ -66,12 +69,24 @@ void setTimer0(int duration)
 	timer0_flag = 0;
 }
 
+void setTimer1(int duration)
+{
+	timer1_counter = duration / TIMER_CYCLE;
+	timer1_flag = 0;
+}
+
 void timer_run()
 {
 	if(timer0_counter > 0)
 	{
 		timer0_counter--;
 		if(timer0_counter == 0) timer0_flag = 1;
+	}
+
+	if(timer1_counter > 0)
+	{
+		timer1_counter--;
+		if(timer1_counter == 0) timer1_flag = 1;
 	}
 }
 
@@ -228,6 +243,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   setTimer0(1000);
+  setTimer1(1000);
 
   hour = 15, minute = 8, second = 50;
   while (1)
@@ -235,24 +251,29 @@ int main(void)
 	  if(timer0_flag == 1)
 	  {
 		  HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-		  setTimer0(2000);
-	  }
-
-	  second++;
-	  if(second >= 60){
-		  second = 0;
-		  minute++;
-	  }
-	  if(minute >= 60){
-		  minute = 0;
-		  hour++;
-	  }
-	  if(hour >= 24){
-		  hour = 0;
+		  HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+		  setTimer0(1000);
 	  }
 
 	  updateClockBuffer();
-	  HAL_Delay(1000);
+	  if(timer1_flag == 1)
+	  {
+		  second++;
+		  if(second >= 60){
+			  second = 0;
+			  minute++;
+		  }
+		  if(minute >= 60){
+			  minute = 0;
+			  hour++;
+		  }
+		  if(hour >= 24){
+			  hour = 0;
+		  }
+		  updateClockBuffer();
+		  setTimer1(1000);
+	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -382,34 +403,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-int led_enable = 1;
-// To know which 7 SEGMENT LED is enable
-// 1 - LED SEG1 display, 2 - LED SEG2 display
-// 3 - LED SEG3 display, 0 - LED SEG4 dislay
 
-int counter_for_led_red_blinky = 100;
-int counter_for_DOT = 100;
 int counter_for_switch_LED7SEG = 50;
-
 
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	timer_run();
-
-//	counter_for_led_red_blinky--;
-//	if (counter_for_led_red_blinky <= 0) //toggle LED RED (PA5) every second
-//	{
-//		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-//		counter_for_led_red_blinky = 100;
-//	}
-
-	counter_for_DOT--;
-	if(counter_for_DOT <= 0)  //Blink the two LEDs every second
-	{
-		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-		counter_for_DOT = 100;
-	}
 
 	counter_for_switch_LED7SEG--;
 	if (counter_for_switch_LED7SEG <= 0)
