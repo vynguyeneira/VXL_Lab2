@@ -279,39 +279,70 @@ static void MX_GPIO_Init(void)
 int led_enable = 1;
 // To know which 7 SEGMENT LED is enable
 // 1 - LED SEG1 display, 2 - LED SEG2 display
+// 3 - LED SEG3 display, 0 - LED SEG4 dislay
 int counter_for_switch_LED7SEG = 50;
 int counter_for_led_red_blinky = 100;
+int counter_for_DOT = 100;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	counter_for_led_red_blinky--;
-	if (counter_for_led_red_blinky <= 0) //toggle LED RED every second
+	if (counter_for_led_red_blinky <= 0) //toggle LED RED (PA5) every second
 	{
 		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-		counter_for_led_red_blinky = 100; //reset counter for led red blinky
+		counter_for_led_red_blinky = 100;
 	}
 
-		counter_for_switch_LED7SEG--;
-		if (counter_for_switch_LED7SEG <= 0)
-		{
-			switch (led_enable) {
-				case 1:
-					HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, RESET);
-					HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, SET);
-					display7SEG(1);
-					led_enable = 2;
-					break;
-				case 2:
-					HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, SET);
-					HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, RESET);
-					display7SEG(2);
-					led_enable = 1;
-				default:
-					break;
-			}
+	counter_for_DOT--;
+	if(counter_for_DOT <= 0)  //Blink the two LEDs every second
+	{
+		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+		counter_for_DOT = 100;
+	}
 
-			counter_for_switch_LED7SEG = 50;
+	counter_for_switch_LED7SEG--;
+	if (counter_for_switch_LED7SEG <= 0)
+	{
+		switch (led_enable) {
+			case 1:
+				HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, RESET);
+				HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, SET);
+				HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, SET);
+				HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, SET);
+				display7SEG(1);
+				led_enable = 2;
+				break;
+			case 2:
+				HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, SET);
+				HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, RESET);
+				HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, SET);
+				HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, SET);
+				display7SEG(2);
+				led_enable = 3;
+				break;
+			case 3:
+				HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, SET);
+				HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, SET);
+				HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, RESET);
+				HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, SET);
+				display7SEG(3);
+				led_enable = 0;
+				break;
+			case 0:
+				HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, SET);
+				HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, SET);
+				HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, SET);
+				HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, RESET);
+				display7SEG(0);
+				led_enable = 1;
+				break;
+
+			default:
+				break;
 		}
+
+		counter_for_switch_LED7SEG = 50;
+	}
 }
 /* USER CODE END 4 */
 
