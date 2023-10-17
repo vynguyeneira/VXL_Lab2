@@ -56,6 +56,14 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+const int MAX_LED = 4;
+int index_led = 0;  //from 0 to 3
+int led_buffer[4] = {2, 3, 4, 5};
+int hour, minute, second;
+
+void display7SEG(int num);
+void update7SEG(int index);
+void updateClockBuffer();
 
 void display7SEG(int num)
 {
@@ -110,10 +118,6 @@ void display7SEG(int num)
 	}
 }
 
-
-const int MAX_LED = 4;
-int index_led = 0;  //from 0 to 3
-int led_buffer[4] = {2, 3, 4, 5};
 void update7SEG(int index)
 {
 	display7SEG(led_buffer[index]);
@@ -151,6 +155,19 @@ void update7SEG(int index)
 			break;
 	}
 }
+
+void updateClockBuffer()
+{
+	//Retrieve the tens digit of the variable 'hour'
+	led_buffer[0] = hour / 10;
+	//Retrieve the units digit of the variable 'hour'
+	led_buffer[1] = hour % 10;
+	//Retrieve the tens digit of the variable 'minute'
+	led_buffer[2] = minute / 10;
+	//Retrieve the units digit of the variable 'minute'
+	led_buffer[3] = minute % 10;
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -188,8 +205,25 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  hour = 15, minute = 8, second = 50;
   while (1)
   {
+	  second++;
+	  if(second >= 60){
+		  second = 0;
+		  minute++;
+	  }
+	  if(minute >= 60){
+		  minute = 0;
+		  hour++;
+	  }
+	  if(hour >= 24){
+		  hour = 0;
+	  }
+
+	  updateClockBuffer();
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -326,11 +360,8 @@ int led_enable = 1;
 
 int counter_for_led_red_blinky = 100;
 int counter_for_DOT = 100;
+int counter_for_switch_LED7SEG = 50;
 
-int counter_for_switch_LED7SEG = 25;
-// The period of invoking update7SEG function is
-//0,25s (250ms) in order to set the frequency of
-//4 seven segment LEDs to 1Hz.
 
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -354,7 +385,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
 		update7SEG(index_led++);
 		if (index_led >= MAX_LED) index_led = 0;
-		counter_for_switch_LED7SEG = 25;
+		counter_for_switch_LED7SEG = 50;
 	}
 }
 /* USER CODE END 4 */
