@@ -1,5 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
 File.Version=6
+GPIO.groupedBy=Group By Peripherals
 KeepUserPlacement=false
 Mcu.Family=STM32F1
 Mcu.IP0=NVIC
@@ -130,7 +131,7 @@ PB10.Signal=GPIO_Output
 PB11.GPIOParameters=GPIO_Label
 PB11.GPIO_Label=ROW3
 PB11.Locked=true
-PB11.Signal=GPIO_Analog
+PB11.Signal=GPIO_Output
 PB12.GPIOParameters=GPIO_Label
 PB12.GPIO_Label=ROW4
 PB12.Locked=true
