@@ -61,10 +61,12 @@ int timer0_counter = 0;
 int timer1_counter = 0;
 int timer2_couter = 0;
 int timer3_counter = 0;
+int timer4_counter = 0;
 int timer0_flag = 0;
 int timer1_flag = 0;
 int timer2_flag = 0;
 int timer3_flag = 0;
+int timer4_flag = 0;
 int TIMER_CYCLE = 10;  //10ms
 
 void setTimer0(int duration)
@@ -89,6 +91,12 @@ void setTimer3(int duration)
 {
 	timer3_counter = duration / TIMER_CYCLE;
 	timer3_flag = 0;
+}
+
+void setTimer4(int duration)
+{
+	timer4_counter = duration / TIMER_CYCLE;
+	timer4_flag = 0;
 }
 
 void timer_run()
@@ -116,6 +124,12 @@ void timer_run()
 		timer3_counter--;
 		if(timer3_counter == 0) timer3_flag = 1;
 	}
+
+	if(timer4_counter > 0)
+	{
+		timer4_counter--;
+		if(timer4_counter == 0) timer4_flag = 1;
+	}
 }
 
 
@@ -136,6 +150,7 @@ void update7SEG(int index);
 void updateClockBuffer();
 void displayLEDMAtrix(uint8_t value);
 void updateLEDMatrix(int index);
+void updateMatrixAnimation();
 
 void display7SEG(int num)
 {
@@ -348,6 +363,22 @@ void updateLEDMatrix(int value)
 	displayLEDMatrix(matrix_buffer[value]);
 }
 
+uint8_t temp;
+//The updateMatrixAnimation function is used to shift "A" from bottom to top
+void updateMatrixAnimation()
+{
+	temp = matrix_buffer[0];
+	matrix_buffer[0] = matrix_buffer[1];
+	matrix_buffer[1] = matrix_buffer[2];
+	matrix_buffer[2] = matrix_buffer[3];
+	matrix_buffer[3] = matrix_buffer[4];
+	matrix_buffer[4] = matrix_buffer[5];
+	matrix_buffer[5] = matrix_buffer[6];
+	matrix_buffer[6] = matrix_buffer[7];
+	matrix_buffer[7] = temp;
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -390,7 +421,8 @@ int main(void)
   setTimer1(1000);  // 1 second - UpdateClockBuffer
   setTimer2(250);   // 0.25 second - Update7SEG
   setTimer3(100);   // 0.1 second - The LED needs to be scanned quickly to
-  	  	  	  	  	//easily visualize the character A
+  	  	  	  	  	// easily visualize the character A
+  setTimer4(2000);   //2 seconds - create an animation on LED matrix
 
   hour = 15, minute = 8, second = 50;
   while (1)
@@ -435,6 +467,11 @@ int main(void)
 		  setTimer3(100);
 	  }
 
+	  if(timer4_flag == 1)
+	  {
+		  setTimer4(2000);
+		  updateMatrixAnimation();
+	  }
 
     /* USER CODE END WHILE */
 
