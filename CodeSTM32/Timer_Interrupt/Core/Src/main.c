@@ -364,7 +364,7 @@ void updateLEDMatrix(int value)
 }
 
 uint8_t temp;
-//The updateMatrixAnimation function is used to shift "A" from bottom to top
+//The updateMatrixAnimation function is used to shift "A" upward
 void updateMatrixAnimation()
 {
 	temp = matrix_buffer[0];
